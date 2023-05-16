@@ -19,6 +19,20 @@ public:
     void GPUApplyOverdrive(const float *const *samples_by_channels, int numOfChannels, int arrayLength, float originalMagnitude) {
         kernel(samples_by_channels, numOfChannels,  arrayLength, gain, originalMagnitude);
     }
+
+    void CPUApplyOverdrive(juce::AudioBuffer<float> buffer) {
+        float originalMagnitude = buffer.getMagnitude(0, 0, buffer.getNumSamples());
+
+        buffer.applyGain(gain);     
+
+        for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex) {
+            for (int channelIndex = 0; channelIndex < buffer.getNumChannels(); ++channelIndex) {
+                float currentSample = buffer.getSample(channelIndex, sampleIndex);
+                if (currentSample > originalMagnitude) buffer.setSample(channelIndex, sampleIndex, originalMagnitude);
+                if (currentSample < -1 * originalMagnitude) buffer.setSample(channelIndex, sampleIndex, -1 * originalMagnitude);
+            }
+        }
+    }
 };
 
 //==============================================================================
@@ -62,19 +76,8 @@ int main ()
 
     Overdrive od = Overdrive(gain);
     od.GPUApplyOverdrive(buffer.getArrayOfReadPointers(), buffer.getNumChannels(), buffer.getNumSamples(), originalMagnitude);
-    
 
     //std::cout << "Magnitude after gain: " << buffer.getMagnitude(0, 0, reader->lengthInSamples) << std::endl;
-    
-    //for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex) {
-    //    for (int channelIndex = 0; channelIndex < buffer.getNumChannels(); ++channelIndex) {
-    //        float currentSample = buffer.getSample(channelIndex, sampleIndex);
-    //        if (currentSample > originalMagnitude) buffer.setSample(channelIndex, sampleIndex, originalMagnitude);
-    //        if (currentSample < -1 * originalMagnitude) buffer.setSample(channelIndex, sampleIndex, -1 * originalMagnitude);
-    //    }
-    //}
-
-    //buffer.applyGain((float)(-1 * gain));
 
     // Save output to file
     std::cout << "Please specify the name of your exported file: ";
