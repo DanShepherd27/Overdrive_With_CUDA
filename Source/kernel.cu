@@ -3,27 +3,32 @@
 #include "./kernel.cuh"
 #include <stdio.h>
 
-__global__ void applyGainKernel(float *samplesOfChannel, int gain) {
+__global__ void applyGainKernel(float *samplesOfChannel, int gain, int arrayLength) {
     // Get thread ID.
     int threadID = blockDim.x * blockIdx.x + threadIdx.x;
+    bool endReached = arrayLength - threadID <= 0;
+
     if (threadID == 10000) {
         printf("ThreadID: %d \n", threadID);
         printf("Value before: %f \n", samplesOfChannel[threadID]);
     }
     
-    samplesOfChannel[threadID] *= gain;
+    if (!endReached) {
+        samplesOfChannel[threadID] *= gain;
+    }
 
     if (threadID == 10000) {
         printf("Value after: %f \n", samplesOfChannel[threadID]);
     }
 }
 
-__global__ void normalizeSamplesKernel(float *samplesOfChannel, float originalMagnitude) {
+__global__ void normalizeSamplesKernel(float *samplesOfChannel, float originalMagnitude, int arrayLength) {
     int threadID = blockDim.x * blockIdx.x + threadIdx.x;
-    if (samplesOfChannel[threadID] > originalMagnitude) {
+    bool endReached = arrayLength - threadID <= 0;
+    if (!endReached && samplesOfChannel[threadID] > originalMagnitude) {
         samplesOfChannel[threadID] = originalMagnitude;
     }
-    if (samplesOfChannel[threadID] < -1 * originalMagnitude) {
+    if (!endReached && samplesOfChannel[threadID] < -1 * originalMagnitude) {
         samplesOfChannel[threadID] = -1 * originalMagnitude;
     }
 }
@@ -38,13 +43,7 @@ __global__ void normalizeSamplesKernel(float *samplesOfChannel, float originalMa
  * @param gain Gain to be applied to samples.
  * @param originalMagnitude The highest value of all samples before the effect is applied.
  */
-void kernel(const float *const *samples_by_channels, int numOfChannels, const int arrayLength, int gain, float originalMagnitude) {
-    /*const int c_arrayLength = arrayLength;
-    float* samplesOfChannel_0 = new float[c_arrayLength];
-    float* samplesOfChannel_1 = new float[c_arrayLength];
-    float* const* od_samples_by_channels = new float*[2];
-    *od_samples_by_channels[0] = *samplesOfChannel_0;
-    *od_samples_by_channels[1] = *samplesOfChannel_1;*/
+void kernel(const float *const *samples_by_channels, int numOfChannels, int arrayLength, int gain, float originalMagnitude) {
     
     // Array size per channel.
     int arraySize = arrayLength * sizeof(float);
@@ -65,11 +64,11 @@ void kernel(const float *const *samples_by_channels, int numOfChannels, const in
 
         // Calculate blocksize and gridsize.
         dim3 blockSize(1024);
-        dim3 gridSize(arrayLength / blockSize.x + 1);
+        dim3 gridSize(arrayLength % blockSize.x == 0 ? arrayLength/blockSize.x : arrayLength / blockSize.x + 1);
 
         // Launch CUDA kernel.    
-        applyGainKernel << < gridSize, blockSize >> > (dev_samplesOfChannel, gain);
-        normalizeSamplesKernel << <gridSize, blockSize >> > (dev_samplesOfChannel, originalMagnitude);
+        applyGainKernel << < gridSize, blockSize >> > (dev_samplesOfChannel, gain, arrayLength);
+        normalizeSamplesKernel << <gridSize, blockSize >> > (dev_samplesOfChannel, originalMagnitude, arrayLength);
         
         // Copy result back to host memory.
         cudaMemcpy((void*)samples_by_channels[channelNumber], dev_samplesOfChannel, arraySize, cudaMemcpyDeviceToHost);
