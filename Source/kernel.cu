@@ -3,17 +3,6 @@
 #include "./kernel.cuh"
 #include <stdio.h>
 
-//__global__ void vectorAdditionKernel(double* A, double* B, double* C, int arraySize) {
-//    // Get thread ID.
-//    int threadID = blockDim.x * blockIdx.x + threadIdx.x;
-//
-//    // Check if thread is within array bounds.
-//    if (threadID < arraySize) {
-//        // Add a and b.
-//        C[threadID] = A[threadID] + B[threadID];
-//    }
-//}
-
 __global__ void applyGainKernel(float *samplesOfChannel, int gain) {
     // Get thread ID.
     int threadID = blockDim.x * blockIdx.x + threadIdx.x;
