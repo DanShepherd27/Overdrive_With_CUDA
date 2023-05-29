@@ -77,16 +77,12 @@ int main ()
     Overdrive od = Overdrive(gain);
     od.GPUApplyOverdrive(buffer.getArrayOfReadPointers(), buffer.getNumChannels(), buffer.getNumSamples(), originalMagnitude);
 
-    //std::cout << "Magnitude after gain: " << buffer.getMagnitude(0, 0, reader->lengthInSamples) << std::endl;
-
     // Save output to file
     std::cout << "Please specify the name of your exported file: ";
     std::string outputFilePath;
     std::cin >> outputFilePath;
 
-    //juce::File outputFile = juce::File(juce::File::getCurrentWorkingDirectory().getChildFile(outputFilePath + inputFile.getFileExtension().toStdString()));
     juce::File outputFile = juce::File(juce::File::getCurrentWorkingDirectory().getChildFile(outputFilePath + ".wav"));
-    //juce::AudioFormat* format = formatManager.findFormatForFileExtension(inputFile.getFileExtension());
     juce::FileOutputStream outputStream(outputFile);
     
     if (outputStream.failedToOpen()) return 0;

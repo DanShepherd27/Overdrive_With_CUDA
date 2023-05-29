@@ -8,11 +8,6 @@ __global__ void applyGainAndNormalizeKernel(float *samplesOfChannel, int gain, f
     // Get thread ID.
     int threadID = blockDim.x * blockIdx.x + threadIdx.x;
     bool endReached = arrayLength - threadID <= 0;
-
-    /*if (threadID == 10000) {
-        printf("ThreadID: %d \n", threadID);
-        printf("Value before: %f \n", samplesOfChannel[threadID]);
-    }*/
     
     if (!endReached) {
         // Apply gain
@@ -26,10 +21,6 @@ __global__ void applyGainAndNormalizeKernel(float *samplesOfChannel, int gain, f
             samplesOfChannel[threadID] = -1 * originalMagnitude;
         }
     }
-
-    /*if (threadID == 10000) {
-        printf("Value after: %f \n", samplesOfChannel[threadID]);
-    }*/
 }
 
 
@@ -46,8 +37,6 @@ void kernel(const float *const *samples_by_channels, int numOfChannels, int arra
     
     // Array size per channel.
     int arraySize = arrayLength * sizeof(float);
-    /*const float* samplesOfLeftChannel = samples_by_channels[0];
-    printf("[BEFORE] Value of the 10.000th sample: %f \n", samplesOfLeftChannel[10000]);*/
     printf("Kernel started...\n");
     CPreciseTimer timer;
     timer.StartTimer();
@@ -76,7 +65,4 @@ void kernel(const float *const *samples_by_channels, int numOfChannels, int arra
     }
     timer.StopTimer();
     printf("Timer: %f ms.\n", timer.GetTimeMilliSec());
-
-    /*printf("CUDA has run. \n");
-    printf("[AFTER] Value of the 10.000th sample: %f \n", samplesOfLeftChannel[10000]);*/
 }
