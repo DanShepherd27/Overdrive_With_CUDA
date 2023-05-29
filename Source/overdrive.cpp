@@ -2,8 +2,10 @@
 #include <string>
 #include <iostream>
 #include <juce_audio_formats/juce_audio_formats.h>
+#include <string>
 
 #include "./kernel.cuh"
+#include "./PreciseTimer.h"
 
 class Overdrive {
 public:
@@ -15,6 +17,7 @@ public:
     }
 
     int gain;
+    CPreciseTimer timer;
 
     void GPUApplyOverdrive(const float *const *samples_by_channels, int numOfChannels, int arrayLength, float originalMagnitude) {
         kernel(samples_by_channels, numOfChannels,  arrayLength, gain, originalMagnitude);
@@ -23,6 +26,7 @@ public:
     void CPUApplyOverdrive(juce::AudioBuffer<float> buffer) {
         float originalMagnitude = buffer.getMagnitude(0, 0, buffer.getNumSamples());
 
+        timer.StartTimer();
         buffer.applyGain(gain);     
 
         for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex) {
@@ -32,6 +36,8 @@ public:
                 if (currentSample < -1 * originalMagnitude) buffer.setSample(channelIndex, sampleIndex, -1 * originalMagnitude);
             }
         }
+        timer.StopTimer();
+        std::cout << "Timer: " << timer.GetTimeMilliSec() << "ms. \n";
     }
 };
 
@@ -74,8 +80,21 @@ int main ()
     int gain = 0;
     std::cin >> gain;
 
+    std::string mode_selector;
+    do {
+        std::cin.clear();
+        std::cout << "Select computing mode: \n 1 - CPU \n 2 - GPU\n";
+        std::cin >> mode_selector;
+    } while (!(mode_selector == "1" || mode_selector == "2"));
+    
     Overdrive od = Overdrive(gain);
-    od.GPUApplyOverdrive(buffer.getArrayOfReadPointers(), buffer.getNumChannels(), buffer.getNumSamples(), originalMagnitude);
+    
+    if (mode_selector == "1") {
+        od.CPUApplyOverdrive(buffer);
+    }
+    else if(mode_selector == "2"){
+        od.GPUApplyOverdrive(buffer.getArrayOfReadPointers(), buffer.getNumChannels(), buffer.getNumSamples(), originalMagnitude);
+    }
 
     // Save output to file
     std::cout << "Please specify the name of your exported file: ";
