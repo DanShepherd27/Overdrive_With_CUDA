@@ -852,6 +852,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_data_structures.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_events.cpp" />
     <ClCompile Include="..\..\Source\overdrive.cpp" />
+    <ClCompile Include="..\..\Source\PreciseTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h" />
@@ -1198,6 +1199,8 @@
     <ClInclude Include="..\..\..\..\..\..\..\..\..\..\..\JUCE\modules\juce_events\juce_events.h" />
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
     <ClInclude Include="..\..\Source\kernel.cuh" />
+    <ClInclude Include="..\..\Source\PreciseTimer.h" />
+    <ClInclude Include="..\..\Source\Timing.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\Flac Licence.txt" />

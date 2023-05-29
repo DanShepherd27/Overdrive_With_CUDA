@@ -906,6 +906,9 @@
     <ClCompile Include="..\..\Source\overdrive.cpp">
       <Filter>Overdrive\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\PreciseTimer.cpp">
+      <Filter>Overdrive\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
@@ -1938,6 +1941,12 @@
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\kernel.cuh">
+      <Filter>Overdrive\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PreciseTimer.h">
+      <Filter>Overdrive\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Timing.h">
       <Filter>Overdrive\Source</Filter>
     </ClInclude>
   </ItemGroup>
